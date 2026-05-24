@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: plushietale-backend
+
+  profiles:
+    include: secret   # application-secret.yml 을 자동으로 함께 로드
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/plushietale?serverTimezone=UTC&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # username / password 는 application-secret.yml 에 정의
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # 개발 중: 테이블 자동 생성/수정. 운영 배포 시 validate 로 변경
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
