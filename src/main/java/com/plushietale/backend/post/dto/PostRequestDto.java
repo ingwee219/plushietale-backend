@@ -19,6 +19,5 @@ public class PostRequestDto {
     @Size(max = 200, message = "Title must be 200 characters or less.")
     private String title;
 
-    @NotBlank(message = "Content is required.")
     private String content;
 }
