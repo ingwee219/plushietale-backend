@@ -2,6 +2,7 @@ package com.plushietale.backend.toy;
 
 import com.plushietale.backend.global.exception.CustomException;
 import com.plushietale.backend.global.exception.ErrorCode;
+import com.plushietale.backend.global.moderation.ContentModerationService;
 import com.plushietale.backend.storage.S3Service;
 import com.plushietale.backend.story.StoryToyRepository;
 import com.plushietale.backend.toy.dto.ToyResponseDto;
@@ -23,10 +24,14 @@ public class ToyService {
     private final UserRepository userRepository;
     private final StoryToyRepository storyToyRepository;
     private final S3Service s3Service;
+    private final ContentModerationService moderation;
 
     @Transactional
     public ToyResponseDto createToy(Long userId, String name, String personality,
                                     String description, MultipartFile image) {
+        moderation.check(name);
+        moderation.check(personality);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -61,6 +66,8 @@ public class ToyService {
             throw new CustomException(ErrorCode.TOY_ACCESS_DENIED);
         }
 
+        moderation.check(name);
+        moderation.check(personality);
         if (name != null && !name.isBlank()) toy.updateName(name);
         if (personality != null) toy.updatePersonality(personality.isBlank() ? null : personality);
         if (description != null) toy.updateDescription(description.isBlank() ? null : description);

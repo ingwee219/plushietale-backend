@@ -4,6 +4,7 @@ import com.plushietale.backend.comment.dto.CommentRequestDto;
 import com.plushietale.backend.comment.dto.CommentResponseDto;
 import com.plushietale.backend.global.exception.CustomException;
 import com.plushietale.backend.global.exception.ErrorCode;
+import com.plushietale.backend.global.moderation.ContentModerationService;
 import com.plushietale.backend.post.Post;
 import com.plushietale.backend.post.PostRepository;
 import com.plushietale.backend.user.User;
@@ -22,9 +23,12 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final ContentModerationService moderation;
 
     @Transactional
     public CommentResponseDto createComment(Long userId, Long postId, CommentRequestDto request) {
+        moderation.check(request.getContent());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -58,6 +62,7 @@ public class CommentService {
             throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
         }
 
+        moderation.check(request.getContent());
         comment.update(request.getContent());
         return CommentResponseDto.from(comment);
     }

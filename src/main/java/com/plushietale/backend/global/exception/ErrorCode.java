@@ -34,6 +34,9 @@ public enum ErrorCode {
     // S3
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file."),
 
+    // Moderation
+    INAPPROPRIATE_CONTENT(HttpStatus.BAD_REQUEST, "Your message contains inappropriate content. Please keep it family-friendly."),
+
     // Gemini
     GEMINI_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate story. Please try again."),
     GEMINI_CONTENT_BLOCKED(HttpStatus.BAD_REQUEST, "The story could not be generated because the content was flagged as inappropriate. Please try a different story idea.");

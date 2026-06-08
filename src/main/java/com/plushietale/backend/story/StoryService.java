@@ -3,6 +3,7 @@ package com.plushietale.backend.story;
 import com.plushietale.backend.ai.GeminiService;
 import com.plushietale.backend.global.exception.CustomException;
 import com.plushietale.backend.global.exception.ErrorCode;
+import com.plushietale.backend.global.moderation.ContentModerationService;
 import com.plushietale.backend.post.PostRepository;
 import com.plushietale.backend.story.dto.StoryRequestDto;
 import com.plushietale.backend.story.dto.StoryResponseDto;
@@ -27,9 +28,13 @@ public class StoryService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final GeminiService geminiService;
+    private final ContentModerationService moderation;
 
     @Transactional
     public StoryResponseDto createStory(Long userId, StoryRequestDto request) {
+        // Gemini에 전달되기 전에 유저의 스토리 아이디어 입력을 먼저 검열
+        moderation.check(request.getPrompt());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 

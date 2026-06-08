@@ -2,6 +2,7 @@ package com.plushietale.backend.post;
 
 import com.plushietale.backend.global.exception.CustomException;
 import com.plushietale.backend.global.exception.ErrorCode;
+import com.plushietale.backend.global.moderation.ContentModerationService;
 import com.plushietale.backend.post.dto.LikeResponseDto;
 import com.plushietale.backend.post.dto.PostRequestDto;
 import com.plushietale.backend.post.dto.PostResponseDto;
@@ -25,9 +26,13 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final StoryRepository storyRepository;
     private final UserRepository userRepository;
+    private final ContentModerationService moderation;
 
     @Transactional
     public PostResponseDto createPost(Long userId, PostRequestDto request) {
+        moderation.check(request.getTitle());
+        moderation.check(request.getContent());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -99,6 +104,8 @@ public class PostService {
             throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
         }
 
+        moderation.check(request.getTitle());
+        moderation.check(request.getContent());
         post.update(request.getTitle(), request.getContent());
         return PostResponseDto.from(post);
     }

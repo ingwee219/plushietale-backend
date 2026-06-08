@@ -4,6 +4,7 @@ import com.plushietale.backend.comment.CommentRepository;
 import com.plushietale.backend.comment.dto.MyCommentResponseDto;
 import com.plushietale.backend.global.exception.CustomException;
 import com.plushietale.backend.global.exception.ErrorCode;
+import com.plushietale.backend.global.moderation.ContentModerationService;
 import com.plushietale.backend.post.PostRepository;
 import com.plushietale.backend.post.dto.PostResponseDto;
 import com.plushietale.backend.user.dto.UpdateNicknameRequestDto;
@@ -25,6 +26,7 @@ public class UserService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final ContentModerationService moderation;
 
     public UserResponseDto getMyInfo(User user) {
         return UserResponseDto.from(user);
@@ -32,6 +34,8 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateNickname(Long userId, UpdateNicknameRequestDto request) {
+        moderation.check(request.getNickname());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.updateNickname(request.getNickname());
