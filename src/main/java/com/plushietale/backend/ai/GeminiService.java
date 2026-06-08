@@ -137,14 +137,35 @@ public class GeminiService {
         generationConfig.put("maxOutputTokens", 2048);
         generationConfig.putObject("thinkingConfig").put("thinkingBudget", 0);
 
+        // 아동 서비스 — 모든 유해 카테고리를 최고 강도로 차단
+        ArrayNode safetySettings = root.putArray("safetySettings");
+        for (String category : List.of(
+                "HARM_CATEGORY_HARASSMENT",
+                "HARM_CATEGORY_HATE_SPEECH",
+                "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "HARM_CATEGORY_DANGEROUS_CONTENT"
+        )) {
+            safetySettings.addObject()
+                    .put("category", category)
+                    .put("threshold", "BLOCK_LOW_AND_ABOVE");
+        }
+
         return root;
     }
 
     private GeminiResult parseResponse(String responseJson) {
         try {
             JsonNode root = objectMapper.readTree(responseJson);
-            String text = root
-                    .path("candidates").get(0)
+            JsonNode candidate = root.path("candidates").get(0);
+
+            // Safety Settings에 의해 차단된 경우 finishReason이 "SAFETY"로 반환됨
+            String finishReason = candidate.path("finishReason").asText("");
+            if ("SAFETY".equals(finishReason)) {
+                log.warn("Gemini blocked story generation due to safety settings");
+                throw new CustomException(ErrorCode.GEMINI_CONTENT_BLOCKED);
+            }
+
+            String text = candidate
                     .path("content")
                     .path("parts").get(0)
                     .path("text").asText();

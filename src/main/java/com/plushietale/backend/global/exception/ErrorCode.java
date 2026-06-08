@@ -35,7 +35,8 @@ public enum ErrorCode {
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file."),
 
     // Gemini
-    GEMINI_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate story. Please try again.");
+    GEMINI_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate story. Please try again."),
+    GEMINI_CONTENT_BLOCKED(HttpStatus.BAD_REQUEST, "The story could not be generated because the content was flagged as inappropriate. Please try a different story idea.");
 
     private final HttpStatus httpStatus;
     private final String message;
