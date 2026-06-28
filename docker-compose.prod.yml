@@ -17,6 +17,7 @@ services:
     build: ./backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/plushietale?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      APP_FRONTEND_URL: https://plushietale.com
     volumes:
       - ./application-secret.yml:/app/config/application-secret.yml
     depends_on:
